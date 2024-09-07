@@ -1,0 +1,22 @@
+#!/bin/bash
+
+SWIFT=/Library/Developer/Toolchains/swift-DEVELOPMENT-SNAPSHOT-2024-09-04-a.xctoolchain/usr/bin/swift
+
+$SWIFT build --triple=aarch64-none-none-elf -c=release || exit 1
+
+aarch64-elf-as boot/boot.s -o .build/boot.o || exit 1
+
+aarch64-elf-ld -nostdlib -T boot/linker.ld .build/boot.o -o .build/kernel.elf -L .build/aarch64-none-none-elf/release -lSwiftOS || exit 1
+
+additional_flags=""
+if [ "$1" == "log" ]; then
+    additional_flags="-d int,in_asm -D qemu.log"
+fi
+if [ "$1" == "debug" ]; then
+    additional_flags="-S -s"
+fi
+
+qemu-system-aarch64 -machine virt -cpu cortex-a72 -nographic -monitor none -kernel .build/kernel.elf $additional_flags
+#  -d int,in_asm -D qemu.log
+# qemu-system-aarch64 -machine virt -cpu cortex-a57      -nographic -monitor none -kernel .build/kernel.elf
+# qemu-system-aarch64 -machine virt -cpu host -accel hvf -nographic -monitor none -kernel .build/kernel.elf -d int,in_asm -D qemu.log
