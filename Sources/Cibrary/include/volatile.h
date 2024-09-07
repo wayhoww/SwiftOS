@@ -11,3 +11,5 @@ uint32_t read_volatile_u32_size_t(size_t addr);
 void enable_interrupts();
 
 void undefined();
+
+int putchar(int c);

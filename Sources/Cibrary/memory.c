@@ -53,4 +53,26 @@ void *memset(void *s, int c, size_t n) {
     return s;
 }
 
+int memcmp(const void *s1, const void *s2, size_t n) {
+    const unsigned char *p1 = s1;
+    const unsigned char *p2 = s2;
+    while (n--) {
+        if (*p1 != *p2) {
+            return *p1 - *p2;
+        }
+        p1++;
+        p2++;
+    }
+    return 0;
+}
+
+void arc4random_buf(void *buf, size_t nbytes) {
+    static uint32_t state = 0xdeadbeef;
+    uint8_t *p = buf;
+    while (nbytes--) {
+        state = state * 1664525 + 1013904223;
+        *p++ = state >> 24;
+    }
+}
+
 void free(void *ptr) {}
